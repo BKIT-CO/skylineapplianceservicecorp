@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYLINE APPLIANCE SERVICE CORP.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for general icons (phone, map, menu toggle) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background similar to Hyperspace */
+            color: #e2e8f0; /* Light grey text */
+            margin-left: 0; /* Default, will be adjusted by JS for sidebar */
+        }
+
+        /* Main content area */
+        #wrapper {
+            transition: margin-left 0.3s ease; /* For sidebar toggle effect */
+        }
+
+        /* Fixed Sidebar Navigation */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px; /* Width of the sidebar */
+            height: 100vh;
+            background-color: #2d3748; /* Darker sidebar background */
+            color: #cbd5e0; /* Light text for sidebar */
+            padding: 2rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000; /* High z-index to stay on top */
+            transform: translateX(0); /* Default for desktop */
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto; /* Enable scrolling for long content */
+        }
+
+        #sidebar.hidden-mobile {
+            transform: translateX(-100%); /* Hide sidebar off-screen for mobile */
+        }
+
+        @media (min-width: 768px) {
+            body {
+                margin-left: 280px; /* Push content right by sidebar width on desktop */
+            }
+            #sidebar.hidden-mobile {
+                transform: translateX(0); /* Always visible on desktop */
+            }
+        }
+
+        /* Section Styling */
+        .section-panel {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background-size: cover; /* Cover the section with the background image */
+            background-position: center; /* Center the background image */
+            background-attachment: fixed; /* Parallax-like effect */
+            overflow: hidden;
+        }
+        .section-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay for better text readability */
+            z-index: 0;
+        }
+        .section-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* NYC Skyline Background for Intro Section */
+        #intro-section {
+            background-image: url('./img/pexels-mikel-1239162.jpg'); /* Placeholder NYC Skyline */
+            /* You can replace this URL with a real NYC skyline image */
+        }
+
+        /* Text Sections (white background) */
+        .text-section {
+            background-color: #ffffff;
+            color: #333;
+            text-shadow: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 3rem;
+            margin: 4rem auto; /* More margin to separate from other sections */
+            max-width: 1024px;
+        }
+
+        /* Nav link styling for sidebar */
+        .sidebar-nav-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            color: #cbd5e0;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            font-weight: 500;
+        }
+        .sidebar-nav-link:hover {
+            background-color: #4a5568; /* Darker on hover */
+            color: #ffffff;
+            transform: translateX(5px); /* Slight slide effect */
+        }
+        .sidebar-nav-link.active {
+            background-color: #3182ce; /* Blue for active */
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* Button Styling */
+        .btn-primary {
+            background-color: #3182ce; /* Blue */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            background-color: #2c5282; /* Darker blue */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Service Item Styling */
+        .service-item {
+            background-color: #f7fafc; /* Light background for service cards */
+            color: #333;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transform: translateY(0);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .service-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        .service-icon {
+            width: 70px; /* Slightly smaller icons for grid */
+            height: 70px;
+            margin: 0 auto 1rem; /* Center and add margin below */
+            display: block; /* Ensure it takes full width for centering */
+            filter: drop-shadow(0 0 3px rgba(0,0,0,0.1));
+        }
+
+        /* Hamburger menu button */
+        #menu-toggle-button {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1001; /* Above sidebar */
+            background-color: #3182ce;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+            display: block; /* Always visible, adjust via JS */
+        }
+        @media (min-width: 768px) {
+            #menu-toggle-button {
+                display: none; /* Hide on desktop */
+            }
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar" class="hidden-mobile">
+        <div class="flex items-center justify-center mb-8">
+            <h2 class="text-3xl font-extrabold text-white">Skyline Appliance Services</h2>
+        </div>
+        <nav class="space-y-2">
+            <a href="#intro-section" class="sidebar-nav-link active" data-target="intro-section">Home</a>
+            <a href="#about-us-section" class="sidebar-nav-link" data-target="about-us-section">About Us</a>
+            <a href="#services-section" class="sidebar-nav-link" data-target="services-section">Services</a>
+            <a href="#contact-section" class="sidebar-nav-link" data-target="contact-section">Contact</a>
+        </nav>
+        <div class="mt-12 text-center text-sm text-gray-400">
+
+            <a href="https://maps.app.goo.gl/EExCZDPogM3nUsA76" class="hover:underline text-blue-300">64-61 Dry Harbor Road <br> Middle Village, NY 11379 </a>
+
+            <p class="mt-2"><a href="tel:+16467267547" class="hover:underline text-blue-300">+1 (646) 726-7547</a></p>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle Button -->
+    <button id="menu-toggle-button" class="md:hidden focus:outline-none">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+
+    <!-- Main Content Wrapper -->
+    <div id="wrapper">
+        <!-- Intro Section (Hero) with NYC Skyline Background -->
+        <section id="intro-section" class="section-panel">
+            <!-- Background image is set via CSS now -->
+            <div class="section-content max-w-4xl">
+                <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-4 leading-tight">
+                    SKYLINE APPLIANCE <span class="text-blue-300">SERVICE CORP.</span>
+                </h1>
+                <p class="text-xl sm:text-2xl lg:text-3xl font-light mb-8">
+                    Your Trusted Partner for Appliance Repair in NYC
+                </p>
+                <a href="#contact-section" class="btn-primary inline-block text-lg">
+                    Get a Free Quote
+                </a>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="about-us-section" class="text-section">
+            <h2 class="text-4xl font-bold text-gray-800 mb-6">About Us</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                SKYLINE APPLIANCE SERVICE CORP. is a leading appliance repair company serving Middle Village, NY, and the surrounding areas. With years of experience, our certified technicians are dedicated to providing fast, reliable, and affordable solutions for all your appliance needs. We pride ourselves on exceptional customer service and lasting repairs.
+            </p>
+            <p class="text-lg text-gray-700 leading-relaxed">
+                Located at 64-61 Dry Harbor Road, Middle Village, NY 11379, we are a local business committed to our community. Trust us to get your appliances back in perfect working order!
+            </p>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services-section" class="section-panel">
+            <div class="section-content max-w-5xl">
+                <h2 class="text-4xl sm:text-5xl font-bold mb-10">Our Expert Services</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- HVAC -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/air-conditioner.png" alt="HVAC Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">HVAC Repair</h3>
+                        <p class="text-sm text-gray-600">Expert repair and maintenance for your heating, ventilation, and air conditioning systems.</p>
+                    </div>
+                    <!-- Stoves -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/gas-stove.png" alt="Stove Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">Stove Repair</h3>
+                        <p class="text-sm text-gray-600">Efficient repair services for all types of kitchen stoves and ranges.</p>
+                    </div>
+                    <!-- Boilers & Water Heaters -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/boiler.png" alt="Boiler Repair Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">Boiler & Water Heater Repairs</h3>
+                        <p class="text- sm text-gray-600">Professional repair services to keep your boilers and hot water heaters running safely and efficiently.</p>
+                    </div>
+                    <!--    Dishwasher Repair -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/dishwasher.png" alt="Dishwasher Repair Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">Dishwasher Repair</h3>
+                        <p class="text-sm text-gray-600">We will fix all issues with your dishwasher.</p>
+                    </div>
+                    <!-- Washing Machines -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/washing-machine.png" alt="Washing Machine Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">Washing Machine Repair</h3>
+                        <p class="text-sm text-gray-600">Specialized repair for washing machines, ensuring clean and efficient laundry cycles.</p>
+                    </div>
+                    <!-- Dryers -->
+                    <div class="service-item flex flex-col items-center text-center">
+                        <img src="./img/dryer-repair.png" alt="Dryer Icon" class="service-icon">
+                        <h3 class="text-xl font-semibold mb-2">Dryer Repair</h3>
+                        <p class="text-sm text-gray-600">Quick and effective repairs for all types of clothes dryers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-section" class="text-section">
+            <h2 class="text-4xl font-bold text-gray-800 mb-6">Get In Touch</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                Have a question or need to schedule a repair? Fill out the form below or call us directly!
+            </p>
+
+            <div class="flex flex-col md:flex-row justify-center items-start md:space-x-8 space-y-8 md:space-y-0">
+                <!-- Contact Info Block -->
+                <div class="w-full md:w-1/3 bg-gray-100 p-6 rounded-xl shadow-inner">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Contact Information</h3>
+                    <p class="flex items-center text-gray-700 mb-3">
+                        <i class="fas fa-phone-alt text-blue-600 mr-3 text-lg"></i>
+                        Phone: <a href="tel:+16467267547" class="text-blue-600 hover:underline ml-2"> +1 (646) 726-7547</a>
+                    </p>
+                    
+
+<p class="flex items-start text-gray-700 mb-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 mr-3 text-lg mt-1"></i>Address:
+<a href="https://maps.app.goo.gl/EExCZDPogM3nUsA76" class="text-blue-600 hover:underline ml-2"> 64-61 Dry Harbor Road <br> Middle Village, NY 11379</a>
+</p>
+
+
+
+<p class="flex items-start text-gray-700 mb-3">
+    <i class="fas fa-paper-plane text-blue-600 mr-3 text-lg mt-1"></i>
+    Email: 
+    <a href="mailto:skylineappliancesnyc@gmail.com" class="text-blue-600 hover:underline ml-2"> skylineappliancesnyc@gmail.com</a>
+</p>
+
+                    <p class="text-gray-700">We're available 24/7 to assist you.</p>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="w-full md:w-2/3 bg-white p-6 rounded-xl shadow-lg">
+                    <form id="contactForm" action="YOUR_CLOUDFLARE_WORKER_URL" method="POST" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+                            <input type="text" id="name" name="name" placeholder="Your Name" required
+                                   class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                            <input type="email" id="email" name="email" placeholder="Your Email" required
+                                   class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message:</label>
+                            <textarea id="message" name="message" placeholder="Your Message" rows="5" required
+                                      class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"></textarea>
+                        </div>
+                        <button type="submit" class="w-full px-6 py-3 rounded-md text-white font-semibold btn-primary transform hover:scale-105 transition duration-300">
+                            Send Message
+                        </button>
+                    </form>
+                    <div id="formMessage" class="mt-4 text-center text-sm font-medium"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="w-full bg-gray-900 text-gray-400 text-center py-6 mt-8">
+            <p class="text-sm">&copy; 2025 SKYLINE APPLIANCE SERVICE CORP. All rights reserved.</p>
+            <div class="mt-2 text-xs">
+                Made with ❤️ in NYC by BK IT.
+            </div>
+        </footer>
+    </div> <!-- End of #wrapper -->
+
+    <script>
+        // Sidebar toggle for mobile
+        const sidebar = document.getElementById('sidebar');
+        const wrapper = document.getElementById('wrapper');
+        const menuToggleButton = document.getElementById('menu-toggle-button');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('hidden-mobile');
+            if (sidebar.classList.contains('hidden-mobile')) {
+                wrapper.style.marginLeft = '0'; // No margin when sidebar hidden
+            } else {
+                wrapper.style.marginLeft = '280px'; // Push content for sidebar
+            }
+        }
+
+        // Initial check for desktop vs mobile to set sidebar state
+        function setInitialSidebarState() {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('hidden-mobile');
+                wrapper.style.marginLeft = '280px';
+            } else {
+                sidebar.classList.add('hidden-mobile');
+                wrapper.style.marginLeft = '0';
+            }
+        }
+
+        menuToggleButton.addEventListener('click', toggleSidebar);
+        window.addEventListener('resize', setInitialSidebarState);
+        document.addEventListener('DOMContentLoaded', setInitialSidebarState); // Run on page load
+
+        // Smooth scrolling for navigation links and sidebar active state
+        const sections = document.querySelectorAll('section[id]');
+        const sidebarLinks = document.querySelectorAll('.sidebar-nav-link');
+
+        function activateNavLink() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                // Adjust window.scrollY threshold for when section becomes active
+                if (scrollY >= sectionTop - sectionHeight / 3) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-target') === current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Add event listener for scroll to update active link
+        window.addEventListener('scroll', activateNavLink);
+        document.addEventListener('DOMContentLoaded', activateNavLink); // Run on load
+
+        document.querySelectorAll('.sidebar-nav-link, a.btn-primary[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    // Close sidebar on mobile after clicking a link
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('hidden-mobile');
+                        wrapper.style.marginLeft = '0';
+                    }
+                }
+            });
+        });
+
+
+        // Contact Form AJAX Submission (Client-side)
+        document.getElementById('contactForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const form = event.target;
+            const formData = new FormData(form);
+            const formMessage = document.getElementById('formMessage');
+
+            // Simple loading indicator
+            formMessage.textContent = 'Sending message...';
+            formMessage.style.color = '#3182ce'; // Blue for sending
+
+            try {
+                // IMPORTANT: Replace 'YOUR_CLOUDFLARE_WORKER_URL' with your actual Cloudflare Worker URL
+                // This client-side script expects a Cloudflare Worker (or any backend endpoint)
+                // to handle the actual email sending.
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    formMessage.textContent = 'Message sent successfully! We will get back to you shortly.';
+                    formMessage.style.color = 'green';
+                    form.reset(); // Clear the form fields
+                } else {
+                    const errorData = await response.json();
+                    formMessage.textContent = `Error: ${errorData.message || 'Something went wrong. Please try again.'}`;
+                    formMessage.style.color = 'red';
+                    console.error('Form submission error:', response.status, errorData);
+                }
+            } catch (error) {
+                formMessage.textContent = 'Network error. Please check your connection and try again.';
+                formMessage.style.color = 'red';
+                console.error('Fetch error:', error);
+            }
+        });
+    </script>
+
+</body>
+</html>
